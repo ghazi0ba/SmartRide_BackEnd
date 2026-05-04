@@ -20,7 +20,9 @@ public class ApiGatewayApplication {
 						r->r.path("/api/trajets/**")
 								.uri("http://localhost:8082"))
 				.route("job",r->r.path("/api/users/**")
-						.uri("http://localhost:8083"))
+						.uri("http://localhost:8083")).route("payment-service",
+						r -> r.path("/api/payments/**")
+								.uri("http://localhost:8084"))
 				.build();
 	}
 
