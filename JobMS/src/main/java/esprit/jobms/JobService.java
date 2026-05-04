@@ -46,7 +46,7 @@ public class JobService {
     public Job updateJob(int id, Job newJob) {
         if (jobRepository.findById(id).isPresent()) {
 
-           Job existingJob = jobRepository.findById(id).get();
+            Job existingJob = jobRepository.findById(id).get();
             existingJob.setService(newJob.getService());
             existingJob.setEtat(newJob.isEtat());
 

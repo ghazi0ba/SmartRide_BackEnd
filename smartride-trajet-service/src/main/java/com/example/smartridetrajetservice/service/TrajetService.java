@@ -1,8 +1,8 @@
 package com.example.smartridetrajetservice.service;
 
-//Test à effacer
+/*Test à effacer
  import com.example.smartridetrajetservice.Job;
- import com.example.smartridetrajetservice.JobClient;
+ import com.example.smartridetrajetservice.JobClient;*/
 
 
 import com.example.smartridetrajetservice.dto.TrajetRequestDTO;
