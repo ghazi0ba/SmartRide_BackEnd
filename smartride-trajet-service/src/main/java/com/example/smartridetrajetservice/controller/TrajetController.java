@@ -1,9 +1,9 @@
 package com.example.smartridetrajetservice.controller;
 
-//TEST
-import com.example.smartridetrajetservice.Job;
 
 
+
+import com.example.smartridetrajetservice.User;
 import com.example.smartridetrajetservice.dto.TrajetRequestDTO;
 import com.example.smartridetrajetservice.dto.TrajetResponseDTO;
 import com.example.smartridetrajetservice.model.StatutTrajet;
@@ -25,10 +25,10 @@ public class TrajetController {
 
     private final TrajetService trajetService;
 
-    //Test avec Job à effacer
-    @RequestMapping("jobs")
-    public List<Job> getAllJobs(){
-        return trajetService.getJobs();
+
+    @RequestMapping("api/users")
+    public List<User> getAllUsers(){
+        return trajetService.getUsers();
     }
     //End Test
 

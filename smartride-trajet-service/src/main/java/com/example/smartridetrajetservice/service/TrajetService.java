@@ -1,10 +1,10 @@
 package com.example.smartridetrajetservice.service;
 
-/*Test à effacer
- import com.example.smartridetrajetservice.Job;
- import com.example.smartridetrajetservice.JobClient;*/
 
 
+
+import com.example.smartridetrajetservice.User;
+import com.example.smartridetrajetservice.UserClient;
 import com.example.smartridetrajetservice.dto.TrajetRequestDTO;
 import com.example.smartridetrajetservice.dto.TrajetResponseDTO;
 import com.example.smartridetrajetservice.exception.TrajetNotFoundException;
@@ -35,9 +35,9 @@ public class TrajetService {
 
     //TEST
     @Autowired
-    private JobClient jobServiceClient;
-    public  List<Job> getJobs(){
-        return jobServiceClient.getAllJobs();
+    private UserClient userServiceClient;
+    public  List<User> getUsers(){
+        return userServiceClient.getAllUsers();
     }
     //End Test
 

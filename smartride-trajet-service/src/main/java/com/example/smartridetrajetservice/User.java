@@ -1,4 +1,3 @@
-//TEST
 package com.example.smartridetrajetservice;
 
 import lombok.*;
@@ -8,10 +7,13 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Job {
-    private int id;
-    private String service;
-    private boolean etat;
+public class User {
+    private Long id;
+
+    private String nom;
+    private String prenom;
+    private String email;
+
+
+
 }
-
-
