@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name="job-s", url="http://localhost:8084")
+@FeignClient(name="JobMs")// url="http://localhost:8084")
 public interface JobClient {
     @RequestMapping("jobs")
     public List<Job> getAllJobs();
