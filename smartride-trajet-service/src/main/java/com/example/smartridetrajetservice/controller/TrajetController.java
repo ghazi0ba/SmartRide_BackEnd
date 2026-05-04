@@ -1,7 +1,7 @@
 package com.example.smartridetrajetservice.controller;
 
 //TEST
-import com.example.smartridetrajetservice.Job;
+//import com.example.smartridetrajetservice.Job;
 
 
 import com.example.smartridetrajetservice.dto.TrajetRequestDTO;
@@ -10,7 +10,7 @@ import com.example.smartridetrajetservice.model.StatutTrajet;
 import com.example.smartridetrajetservice.service.TrajetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +25,12 @@ public class TrajetController {
 
     private final TrajetService trajetService;
 
-    //Test avec Job à effacer
+    /*/Test avec Job à effacer
     @RequestMapping("jobs")
     public List<Job> getAllJobs(){
         return trajetService.getJobs();
     }
-    //End Test
+    *///End Test
 
     // POST /api/trajets — Créer un trajet
     @PostMapping

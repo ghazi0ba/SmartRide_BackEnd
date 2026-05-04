@@ -1,5 +1,6 @@
 package com.smartride.smartrideuserservice.controllers;
 
+import com.smartride.smartrideuserservice.models.Trajet;
 import com.smartride.smartrideuserservice.models.User;
 import com.smartride.smartrideuserservice.security.JwtService;
 import com.smartride.smartrideuserservice.services.UserService;
@@ -16,7 +17,7 @@ public class UserController {
 
     private final UserService userService;
     private final JwtService jwtService;  // ← ajoutez ceci
-    
+
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
@@ -69,4 +70,13 @@ public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+    @GetMapping("/trajets")
+public ResponseEntity<List<Trajet>> getAllTrajets() {
+    return ResponseEntity.ok(userService.getAllTrajets());
+}
+
+@GetMapping("/trajets/{id}")
+public ResponseEntity<Trajet> getTrajetById(@PathVariable Long id) {
+    return ResponseEntity.ok(userService.getTrajetById(id));
+}
 }

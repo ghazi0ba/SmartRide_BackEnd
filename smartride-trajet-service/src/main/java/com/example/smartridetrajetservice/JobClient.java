@@ -1,4 +1,4 @@
-//TEST
+/*//TEST
 package com.example.smartridetrajetservice;
 
 import org.springframework.cloud.openfeign.FeignClient;
@@ -16,3 +16,4 @@ public interface JobClient {
 
 
 }
+*/

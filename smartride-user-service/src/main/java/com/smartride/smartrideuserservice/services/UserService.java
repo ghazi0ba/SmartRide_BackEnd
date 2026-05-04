@@ -1,8 +1,12 @@
 package com.smartride.smartrideuserservice.services;
 
+import com.smartride.smartrideuserservice.feign.TrajetClient;
+import com.smartride.smartrideuserservice.models.Trajet;
 import com.smartride.smartrideuserservice.models.User;
 import com.smartride.smartrideuserservice.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +16,10 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+
+     @Autowired
+private TrajetClient trajetClient;
+
 
     public User register(User user) {
         return userRepository.save(user);
@@ -38,4 +46,13 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
+   
+public List<Trajet> getAllTrajets() {
+    return trajetClient.getAllTrajets();
+}
+
+public Trajet getTrajetById(Long id) {
+    return trajetClient.getTrajetById(id);
+}
 }

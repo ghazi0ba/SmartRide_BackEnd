@@ -16,7 +16,7 @@ import com.example.smartridetrajetservice.model.TypeTrajet;
 import com.example.smartridetrajetservice.repository.TrajetRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,13 +33,13 @@ public class TrajetService {
     private final TrajetRepository trajetRepository;
     private final TrajetMapper trajetMapper;
 
-    //TEST
+    /*TEST
     @Autowired
     private JobClient jobServiceClient;
     public  List<Job> getJobs(){
         return jobServiceClient.getAllJobs();
     }
-    //End Test
+    //End Test */
 
     // ─── Créer un trajet ───────────────────────────────────────────────────────
 

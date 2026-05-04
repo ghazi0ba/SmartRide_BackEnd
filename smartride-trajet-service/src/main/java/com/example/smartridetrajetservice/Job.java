@@ -1,4 +1,4 @@
-//TEST
+/*TEST
 package com.example.smartridetrajetservice;
 
 import lombok.*;
@@ -14,4 +14,4 @@ public class Job {
     private boolean etat;
 }
 
-
+*/
