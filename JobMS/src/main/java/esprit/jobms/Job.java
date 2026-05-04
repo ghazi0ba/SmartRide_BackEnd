@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 @Entity
 public class Job {
-    private static final long serialVersionUID=6;
+    //private static final long serialVersionUID=6;
     @Id
     @GeneratedValue
     private  int id;
