@@ -3,8 +3,11 @@ package com.example.smartridetrajetservice.service;
 
 
 
+
+import com.example.smartridetrajetservice.ReservationClient;
 import com.example.smartridetrajetservice.User;
 import com.example.smartridetrajetservice.UserClient;
+import com.example.smartridetrajetservice.dto.ReservationDto;
 import com.example.smartridetrajetservice.dto.TrajetRequestDTO;
 import com.example.smartridetrajetservice.dto.TrajetResponseDTO;
 import com.example.smartridetrajetservice.exception.TrajetNotFoundException;
@@ -19,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,13 +37,21 @@ public class TrajetService {
     private final TrajetRepository trajetRepository;
     private final TrajetMapper trajetMapper;
 
-    //TEST
+
+
     @Autowired
     private UserClient userServiceClient;
+
     public  List<User> getUsers(){
         return userServiceClient.getAllUsers();
     }
-    //End Test
+
+
+
+    public User getuserbyid(Long id){
+        return userServiceClient.getUserById(id);
+    }
+
 
     // ─── Créer un trajet ───────────────────────────────────────────────────────
 

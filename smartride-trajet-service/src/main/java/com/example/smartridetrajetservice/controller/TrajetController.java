@@ -4,6 +4,7 @@ package com.example.smartridetrajetservice.controller;
 
 
 import com.example.smartridetrajetservice.User;
+import com.example.smartridetrajetservice.dto.ReservationDto;
 import com.example.smartridetrajetservice.dto.TrajetRequestDTO;
 import com.example.smartridetrajetservice.dto.TrajetResponseDTO;
 import com.example.smartridetrajetservice.model.StatutTrajet;
@@ -26,11 +27,20 @@ public class TrajetController {
     private final TrajetService trajetService;
 
 
-    @RequestMapping("api/users")
+
+   @RequestMapping("api/users")
     public List<User> getAllUsers(){
         return trajetService.getUsers();
     }
-    //End Test
+
+
+
+
+    @GetMapping("/api/users/{id}")
+    public User getUserById(@PathVariable("id") Long id){
+        return trajetService.getuserbyid(id);
+    }
+
 
     // POST /api/trajets — Créer un trajet
     @PostMapping
