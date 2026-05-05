@@ -1,6 +1,25 @@
 package com.smartride.smartride_payment_service.dto;
 
 public class PaymentResponse {
+    private Long id;
+
+    public PaymentResponse() {
+
+    }
+
+    public PaymentResponse(Long id, String status, Double amount) {
+        this.id = id;
+        this.status = status;
+        this.amount = amount;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     private String status;
     private Double amount;

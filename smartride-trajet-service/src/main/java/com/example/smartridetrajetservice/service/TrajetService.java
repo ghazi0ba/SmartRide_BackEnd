@@ -33,6 +33,7 @@ public class TrajetService {
     private final TrajetRepository trajetRepository;
     private final TrajetMapper trajetMapper;
 
+
     //TEST
     @Autowired
     private JobClient jobServiceClient;
@@ -59,6 +60,7 @@ public class TrajetService {
         }
 
         Trajet saved = trajetRepository.save(trajet);
+
         log.info("Trajet créé avec l'ID {}", saved.getId());
         return trajetMapper.toDTO(saved);
     }

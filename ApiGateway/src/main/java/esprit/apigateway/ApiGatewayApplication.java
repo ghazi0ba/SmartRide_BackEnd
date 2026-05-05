@@ -15,14 +15,20 @@ public class ApiGatewayApplication {
 	}
 	@Bean
 	public RouteLocator getRoute(RouteLocatorBuilder builder) {
-		return builder.routes().
-				route("candidat",
-						r->r.path("/api/trajets/**")
-								.uri("http://localhost:8082"))
-				.route("job",r->r.path("/api/users/**")
-						.uri("http://localhost:8083")).route("payment-service",
-						r -> r.path("/api/payments/**")
-								.uri("http://localhost:8084"))
+		return builder.routes()
+
+				.route("trajet-service",
+						r -> r.path("/api/trajets/**")
+								.uri("lb://TRAJET-SERVICE"))
+
+				.route("user-service",
+						r -> r.path("/api/users/**")
+								.uri("lb://USER-SERVICE"))
+
+				.route("payment-service",
+						r -> r.path("/payments/**")
+								.uri("lb://PAYMENT-SERVICE"))
+
 				.build();
 	}
 
