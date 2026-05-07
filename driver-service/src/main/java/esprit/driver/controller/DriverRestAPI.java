@@ -29,7 +29,7 @@ public class DriverRestAPI {
         return driverService.getTrajets();
     }
 
-    @GetMapping("/api/users/{id}")
+    @GetMapping("/api/trajets/{id}")
     public Trajet getTrajetById(@PathVariable("id") int id){
         return driverService.getrajetbyid(id);
     }
