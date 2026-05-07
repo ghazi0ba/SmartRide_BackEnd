@@ -16,9 +16,9 @@ public class ApiGatewayApplication {
 	@Bean
 	public RouteLocator getRoute(RouteLocatorBuilder builder) {
 		return builder.routes().
-				route("candidat",
-						r->r.path("/api/trajets/**")
-								.uri("http://localhost:8082"))
+				route("driver-service",
+						r->r.path("/api/drivers/**")
+								.uri("lb://driver-service"))
 				.route("job",r->r.path("/api/users/**")
 						.uri("http://localhost:8083"))
 				.build();

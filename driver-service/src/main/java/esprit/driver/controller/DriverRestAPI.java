@@ -71,28 +71,24 @@ public class DriverRestAPI {
         return ResponseEntity.ok(drivers);
     }
 
-    // UPDATE
     @PutMapping("/{id}")
     public ResponseEntity<DriverDTO> updateDriver(@PathVariable Long id, @RequestBody DriverDTO driverDTO) {
         DriverDTO updatedDriver = driverService.updateDriver(id, driverDTO);
         return ResponseEntity.ok(updatedDriver);
     }
 
-    // UPDATE STATUS
     @PatchMapping("/{id}/status")
     public ResponseEntity<DriverDTO> updateDriverStatus(@PathVariable Long id, @RequestParam String statut) {
         DriverDTO updatedDriver = driverService.updateDriverStatus(id, statut);
         return ResponseEntity.ok(updatedDriver);
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDriver(@PathVariable Long id) {
         driverService.deleteDriver(id);
         return ResponseEntity.noContent().build();
     }
 
-    // GET RESERVATIONS FOR A DRIVER VIA OPENFEIGN
     @GetMapping("/{driverId}/reservations")
     public ResponseEntity<List<Map<String, Object>>> getDriverReservations(@PathVariable Long driverId) {
         try {
