@@ -1,5 +1,7 @@
 package esprit.driver.service;
 
+import esprit.driver.Trajet;
+import esprit.driver.TrajetClient;
 import esprit.driver.dto.DriverDTO;
 import esprit.driver.entity.Driver;
 import esprit.driver.repository.DriverRepository;
@@ -16,6 +18,19 @@ public class DriverService {
 
     @Autowired
     private DriverRepository driverRepository;
+
+    @Autowired
+    private TrajetClient trajetServiceClient;
+
+    public  List<Trajet> getTrajets(){
+        return trajetServiceClient.getAllTrajets();
+    }
+
+
+
+    public Trajet getrajetbyid(int id){
+        return trajetServiceClient.getTrajetById(id);
+    }
 
     // Create
     public DriverDTO createDriver(DriverDTO driverDTO) {

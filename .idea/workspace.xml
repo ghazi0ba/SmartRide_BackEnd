@@ -5,36 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ed75bd63-e624-41f1-bfff-4f395fe22179" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/ApiGateway/src/main/java/esprit/apigateway/ApiGatewayApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGateway/src/main/java/esprit/apigateway/ApiGatewayApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGateway/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGateway/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JobMS/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/JobMS/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/src/main/java/esprit/jobms/Job.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/src/main/java/esprit/jobms/JobDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/src/main/java/esprit/jobms/JobMsApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/src/main/java/esprit/jobms/JobProducer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/src/main/java/esprit/jobms/JobRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/src/main/java/esprit/jobms/JobRestAPI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/src/main/java/esprit/jobms/JobService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/src/main/java/esprit/jobms/RabbitMQConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobMS/src/test/java/esprit/jobms/JobMsApplicationTests.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/driver-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/driver-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/driver-service/src/main/java/esprit/driver/controller/DriverRestAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/driver-service/src/main/java/esprit/driver/controller/DriverRestAPI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/driver-service/src/main/java/esprit/driver/entity/Driver.java" beforeDir="false" afterPath="$PROJECT_DIR$/driver-service/src/main/java/esprit/driver/entity/Driver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/driver-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/driver-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/driver-service/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/driver-service/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/.gitattributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/mvnw" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/mvnw.cmd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/Job.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/JobClient.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/SmartrideTrajetServiceApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/controller/TrajetController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/dto/TrajetRequestDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/dto/TrajetResponseDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/exception/GlobalExceptionHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/exception/TrajetNotFoundException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/exception/TrajetStatutInvalideException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/mapper/TrajetMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/model/StatutTrajet.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/model/Trajet.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/model/TypeTrajet.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/repository/TrajetRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/java/com/example/smartridetrajetservice/service/TrajetService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartride-trajet-service/src/main/resources/application.properties" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,9 +32,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="3DP8Uj4eyxwIeudTPchCeyM2VNh" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -62,6 +50,7 @@
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
+    "node.js.selected.package.tslint": "(autodetect)",
     "to.speed.mode.migration.done": "true"
   }
 }]]></component>

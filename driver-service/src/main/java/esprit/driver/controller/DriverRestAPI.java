@@ -1,5 +1,6 @@
 package esprit.driver.controller;
 
+import esprit.driver.Trajet;
 import esprit.driver.client.ReservationClient;
 import esprit.driver.dto.DriverDTO;
 import esprit.driver.service.DriverService;
@@ -21,6 +22,17 @@ public class DriverRestAPI {
 
     @Autowired
     private ReservationClient reservationClient;
+
+
+    @GetMapping("api/trajets")
+    public List<Trajet> getAllTrajets(){
+        return driverService.getTrajets();
+    }
+
+    @GetMapping("/api/users/{id}")
+    public Trajet getTrajetById(@PathVariable("id") int id){
+        return driverService.getrajetbyid(id);
+    }
 
     // CREATE
     @PostMapping
