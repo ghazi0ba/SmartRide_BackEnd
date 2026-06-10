@@ -10,18 +10,20 @@ import org.springframework.context.annotation.Bean;
 @EnableDiscoveryClient
 @SpringBootApplication
 public class ApiGatewayApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(ApiGatewayApplication.class, args);
-	}
-	@Bean
-	public RouteLocator getRoute(RouteLocatorBuilder builder) {
-		return builder.routes().
-				route("candidat",
-						r->r.path("/api/trajets/**")
-								.uri("http://localhost:8082"))
-				.route("job",r->r.path("/api/users/**")
-						.uri("http://localhost:8083"))
-				.build();
-	}
 
+    public static void main(String[] args) {
+        SpringApplication.run(ApiGatewayApplication.class, args);
+    }
+
+    @Bean
+    public RouteLocator getRoute(RouteLocatorBuilder builder) {
+        return builder.routes()
+                .route("smartride-trajet-service",
+                        r -> r.path("/api/trajets/**")
+                                .uri("lb://smartride-trajet-service"))
+                .route("smartride-user-service",
+                        r -> r.path("/api/users/**")
+                                .uri("lb://smartride-user-service"))
+                .build();
+    }
 }
