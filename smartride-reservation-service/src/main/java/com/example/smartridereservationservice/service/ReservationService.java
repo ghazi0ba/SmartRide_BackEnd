@@ -32,6 +32,7 @@ public class ReservationService {
     private final ReservationHistoryRepository historyRepository;
     private final UserClient userClient;
     private final TrajetClient trajetClient;
+    private final com.example.smartridereservationservice.messaging.ReservationEventPublisher reservationEventPublisher;
 
     private static final int DELAI_ANNULATION_MINUTES = 30;
 
@@ -94,6 +95,17 @@ public class ReservationService {
 
         Reservation updated = reservationRepository.save(reservation);
         log.info("Réservation confirmée: {}", reservationId);
+
+        // Scénario 2 (async) : notifier payment-service de créer le paiement
+        reservationEventPublisher.publishConfirmed(
+                new com.example.smartridereservationservice.messaging.ReservationConfirmedEvent(
+                        updated.getReservationId(),
+                        updated.getUserId(),
+                        updated.getDriverId(),
+                        updated.getTrajetId(),
+                        updated.getPrixTotal()
+                )
+        );
 
         return mapToResponseDTO(updated, "Réservation confirmée");
     }
@@ -188,6 +200,33 @@ public class ReservationService {
                 .stream()
                 .map(r -> mapToResponseDTO(r, ""))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Scénario async 1 : annule toutes les réservations actives liées à un trajet annulé.
+     */
+    public void cancelReservationsForTrajet(Long trajetId) {
+        List<Reservation> reservations = reservationRepository.findByTrajetId(trajetId);
+        for (Reservation r : reservations) {
+            if (r.getStatus() == ReservationStatus.PENDING || r.getStatus() == ReservationStatus.CONFIRMED) {
+                r.setStatus(ReservationStatus.CANCELLED);
+                r.setDateModification(LocalDateTime.now());
+                reservationRepository.save(r);
+                log.info("Réservation {} annulée suite à l'annulation du trajet {}", r.getReservationId(), trajetId);
+            }
+        }
+    }
+
+    /**
+     * Scénario async 3 : marque une réservation comme payée après un paiement réussi.
+     */
+    public void markReservationAsPaid(String reservationId) {
+        reservationRepository.findById(reservationId).ifPresent(r -> {
+            r.setPaid(true);
+            r.setDateModification(LocalDateTime.now());
+            reservationRepository.save(r);
+            log.info("Réservation {} marquée comme payée", reservationId);
+        });
     }
 
     /**

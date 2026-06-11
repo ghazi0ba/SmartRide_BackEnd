@@ -42,6 +42,9 @@ public class TrajetService {
     @Autowired
     private UserClient userServiceClient;
 
+    @Autowired
+    private com.example.smartridetrajetservice.messaging.TrajetEventPublisher trajetEventPublisher;
+
     public  List<User> getUsers(){
         return userServiceClient.getAllUsers();
     }
@@ -155,7 +158,9 @@ public class TrajetService {
         trajet.setStatut(StatutTrajet.EN_COURS);
         trajet.setDateDebut(LocalDateTime.now());
         log.info("Trajet {} démarré", trajetId);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+        TrajetResponseDTO dto = trajetMapper.toDTO(trajetRepository.save(trajet));
+        trajetEventPublisher.publishStatusChanged(trajetId, StatutTrajet.EN_COURS.name());
+        return dto;
     }
 
     // ─── Terminer un trajet ────────────────────────────────────────────────────
@@ -172,7 +177,9 @@ public class TrajetService {
         trajet.setStatut(StatutTrajet.TERMINE);
         trajet.setDateFin(LocalDateTime.now());
         log.info("Trajet {} terminé", trajetId);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+        TrajetResponseDTO dto = trajetMapper.toDTO(trajetRepository.save(trajet));
+        trajetEventPublisher.publishStatusChanged(trajetId, StatutTrajet.TERMINE.name());
+        return dto;
     }
 
     // ─── Annuler un trajet ─────────────────────────────────────────────────────
@@ -188,7 +195,9 @@ public class TrajetService {
 
         trajet.setStatut(StatutTrajet.ANNULE);
         log.info("Trajet {} annulé", trajetId);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+        TrajetResponseDTO dto = trajetMapper.toDTO(trajetRepository.save(trajet));
+        trajetEventPublisher.publishStatusChanged(trajetId, StatutTrajet.ANNULE.name());
+        return dto;
     }
 
     // ─── Supprimer un trajet ───────────────────────────────────────────────────

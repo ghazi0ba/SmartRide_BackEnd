@@ -26,6 +26,15 @@ public class Payment {
     private Double amount;
     private String status;
     private LocalDateTime paymentDate;
+    private String reservationId;
+
+    public String getReservationId() {
+        return reservationId;
+    }
+
+    public void setReservationId(String reservationId) {
+        this.reservationId = reservationId;
+    }
 
     public Long getId() {
         return id;

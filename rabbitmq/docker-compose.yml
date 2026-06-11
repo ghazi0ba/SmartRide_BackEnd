@@ -1,0 +1,15 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: smartride-rabbitmq
+    ports:
+      - "5672:5672"     # port AMQP (utilisé par les microservices)
+      - "15672:15672"   # console de management (UI web)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+# Démarrage : docker compose -f rabbitmq/docker-compose.yml up -d
+# Console     : http://localhost:15672  (guest / guest)
+#   -> onglets Exchanges / Queues pour visualiser smartride.exchange et les files,
+#      et voir les messages circuler pendant la démo.
