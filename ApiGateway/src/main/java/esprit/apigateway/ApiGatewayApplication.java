@@ -16,11 +16,13 @@ public class ApiGatewayApplication {
 	@Bean
 	public RouteLocator getRoute(RouteLocatorBuilder builder) {
 		return builder.routes().
-				route("candidat",
+				route("trajet",
 						r->r.path("/api/trajets/**")
-								.uri("http://localhost:8082"))
-				.route("job",r->r.path("/api/users/**")
-						.uri("http://localhost:8083"))
+								.uri("lb://trajet-s"))
+				.route("user",r->r.path("/api/users/**")
+						.uri("lb://smartride-user-service"))
+                .route("reservation",r->r.path("/api/reservations/**")
+                        .uri("lb://smartride-reservation-service"))
 				.build();
 	}
 
