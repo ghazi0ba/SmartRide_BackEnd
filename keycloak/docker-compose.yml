@@ -1,0 +1,23 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: smartride-keycloak
+    # start-dev = mode développement (pas de HTTPS requis) + import du realm au démarrage
+    command: ["start-dev", "--import-realm"]
+    environment:
+      # Compte admin de la console Keycloak (http://localhost:8080) — Keycloak 26+
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      # Le realm est importé automatiquement au premier démarrage
+      - ./realm-export:/opt/keycloak/data/import:ro
+
+# Démarrage :  docker compose -f keycloak/docker-compose.yml up -d
+# Console admin : http://localhost:8080  (admin / admin)
+# Realm importé : smartride
+#
+# NB : pour Keycloak < 26, remplacer KC_BOOTSTRAP_ADMIN_USERNAME / KC_BOOTSTRAP_ADMIN_PASSWORD
+#      par KEYCLOAK_ADMIN / KEYCLOAK_ADMIN_PASSWORD.

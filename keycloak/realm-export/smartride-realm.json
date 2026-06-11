@@ -1,0 +1,59 @@
+{
+  "realm": "smartride",
+  "enabled": true,
+  "accessTokenLifespan": 1800,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "roles": {
+    "realm": [
+      { "name": "CLIENT",    "description": "Passager / client de l'application" },
+      { "name": "CHAUFFEUR", "description": "Chauffeur (driver)" },
+      { "name": "ADMIN",     "description": "Administrateur" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "smartride-app",
+      "name": "SmartRide Frontend / API client",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"],
+      "defaultClientScopes": ["web-origins", "roles", "profile", "email"]
+    }
+  ],
+  "users": [
+    {
+      "username": "client1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Client",
+      "lastName": "One",
+      "email": "client1@smartride.tn",
+      "credentials": [ { "type": "password", "value": "client1", "temporary": false } ],
+      "realmRoles": ["CLIENT"]
+    },
+    {
+      "username": "driver1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Driver",
+      "lastName": "One",
+      "email": "driver1@smartride.tn",
+      "credentials": [ { "type": "password", "value": "driver1", "temporary": false } ],
+      "realmRoles": ["CHAUFFEUR"]
+    },
+    {
+      "username": "admin1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Admin",
+      "lastName": "One",
+      "email": "admin1@smartride.tn",
+      "credentials": [ { "type": "password", "value": "admin1", "temporary": false } ],
+      "realmRoles": ["ADMIN", "CLIENT", "CHAUFFEUR"]
+    }
+  ]
+}
