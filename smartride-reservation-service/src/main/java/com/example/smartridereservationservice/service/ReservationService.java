@@ -182,6 +182,14 @@ public class ReservationService {
                 .collect(Collectors.toList());
     }
 
+    public List<ReservationResponseDTO> getReservationsByDriver(Long driverId) {
+        log.info("Récupération des réservations du chauffeur: {}", driverId);
+        return reservationRepository.findByDriverId(driverId)
+                .stream()
+                .map(r -> mapToResponseDTO(r, ""))
+                .collect(Collectors.toList());
+    }
+
     /**
      * Récupérer l'historique d'un utilisateur
      */

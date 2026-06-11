@@ -11,10 +11,10 @@ import java.util.List;
 
 @FeignClient(name="smartride-user-service")
 public interface UserClient {
-    @GetMapping("api/users")
+    @GetMapping("/api/users")
     public List<User> getAllUsers();
 
-    @GetMapping("api/users/{id}")
+    @GetMapping("/api/users/{id}")
     public User getUserById(@PathVariable Long id);
 
 
@@ -22,6 +22,3 @@ public interface UserClient {
 
 
 }
-
-
-
