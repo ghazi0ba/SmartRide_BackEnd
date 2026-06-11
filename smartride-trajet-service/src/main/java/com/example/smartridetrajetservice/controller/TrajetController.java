@@ -11,6 +11,7 @@ import com.example.smartridetrajetservice.model.StatutTrajet;
 import com.example.smartridetrajetservice.service.TrajetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,13 @@ public class TrajetController {
 
 
     private final TrajetService trajetService;
+
+    @Value("${welcome.message}")
+    private String welcomeMessage;
+    @GetMapping("/welcome")
+    public String welcome() {
+        return welcomeMessage;
+    }
 
 
 
