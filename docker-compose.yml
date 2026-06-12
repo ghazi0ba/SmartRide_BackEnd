@@ -122,6 +122,8 @@ services:
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
       SPRING_CONFIG_IMPORT: optional:configserver:http://configserver:8888
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/smartride_trajet?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ""
       SPRING_RABBITMQ_HOST: rabbitmq
     ports:
       - "8082:8082"

@@ -35,13 +35,13 @@ centralisée (Keycloak), communication synchrone (Feign) et asynchrone (RabbitMQ
 
 ## Microservices & ports
 
-| Service              | Nom Eureka                      | Port | Base de données | Préfixe API        |
-|----------------------|----------------------------------|------|-----------------|--------------------|
-| user-service         | `smartride-user-service`         | 8081 | H2 (mémoire)    | `/api/users`       |
-| trajet-service       | `trajet-s`                       | 8082 | MySQL           | `/api/trajets`     |
-| payment-service      | `PAYMENT-SERVICE`                | 8083 | MySQL           | `/payments`        |
-| reservation-service  | `smartride-reservation-service`  | 8084 | MongoDB         | `/api/reservations`|
-| driver-service       | `driver-service`                 | 8085 | H2 (mémoire)    | `/api/drivers`     |
+| Service              | Nom Eureka                       | Port | Base de données | Préfixe API                         |
+|----------------------|----------------------------------|------|-----------------|-------------------------------------|
+| user-service         | `smartride-user-service`         | 8081 | H2 (mémoire)    | `/api/users`                        |
+| trajet-service       | `trajet-s`                       | 8082 | MySQL           | `/smartride_trajet/api/trajets`     |
+| payment-service      | `PAYMENT-SERVICE`                | 8083 | MySQL           | `/payments`                         |
+| reservation-service  | `smartride-reservation-service`  | 8084 | MongoDB         | `/api/reservations`                 |
+| driver-service       | `driver-service`                 | 8085 | H2 (mémoire)    | `/api/drivers`                      |
 
 Infrastructure : **Eureka** 8761, **Config Server** 8888, **API Gateway** 9001,
 **Keycloak** 8080, **RabbitMQ** 5672 (UI 15672), **MySQL** 3306, **MongoDB** 27017.

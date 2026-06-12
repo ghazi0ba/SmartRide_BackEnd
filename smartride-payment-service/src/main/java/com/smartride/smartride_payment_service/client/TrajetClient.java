@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "trajet-s")
 public interface TrajetClient {
 
-    @GetMapping("/api/trajets/{id}")
+    @GetMapping("/smartride_trajet/api/trajets/{id}")
     TrajetDTO getTrajetById(@PathVariable Long id);
 }

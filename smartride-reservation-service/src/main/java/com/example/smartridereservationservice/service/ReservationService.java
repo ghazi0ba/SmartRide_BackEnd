@@ -202,9 +202,6 @@ public class ReservationService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Scénario async 1 : annule toutes les réservations actives liées à un trajet annulé.
-     */
     public void cancelReservationsForTrajet(Long trajetId) {
         List<Reservation> reservations = reservationRepository.findByTrajetId(trajetId);
         for (Reservation r : reservations) {
@@ -217,9 +214,6 @@ public class ReservationService {
         }
     }
 
-    /**
-     * Scénario async 3 : marque une réservation comme payée après un paiement réussi.
-     */
     public void markReservationAsPaid(String reservationId) {
         reservationRepository.findById(reservationId).ifPresent(r -> {
             r.setPaid(true);

@@ -9,10 +9,10 @@ import java.util.List;
 @FeignClient(name = "trajet-s")
 public interface TrajetClient {
 
-    @GetMapping("/api/trajets")
+    @GetMapping("/smartride_trajet/api/trajets")
     List<Trajet> getAllTrajets();
 
-    @GetMapping("/api/trajets/{id}")
-    Trajet getTrajetById(@PathVariable("id") int id);
+    @GetMapping("/smartride_trajet/api/trajets/{id}")
+    Trajet getTrajetById(@PathVariable("id") Long id);
 
 }

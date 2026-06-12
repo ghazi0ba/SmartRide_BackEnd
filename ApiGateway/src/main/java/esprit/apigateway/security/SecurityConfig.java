@@ -56,7 +56,7 @@ public class SecurityConfig {
                 .pathMatchers("/api/drivers/**").hasAnyRole("CHAUFFEUR", "ADMIN")
                 .pathMatchers("/payments/**").hasAnyRole("CLIENT", "ADMIN")
                 .pathMatchers("/api/reservations/**").hasAnyRole("CLIENT", "CHAUFFEUR", "ADMIN")
-                .pathMatchers("/api/trajets/**").hasAnyRole("CLIENT", "CHAUFFEUR", "ADMIN")
+                .pathMatchers("/smartride_trajet/api/trajets/**").hasAnyRole("CLIENT", "CHAUFFEUR", "ADMIN")
                 .pathMatchers("/api/users/**").hasRole("ADMIN")
 
                 // ---- Tout le reste nécessite une authentification ----

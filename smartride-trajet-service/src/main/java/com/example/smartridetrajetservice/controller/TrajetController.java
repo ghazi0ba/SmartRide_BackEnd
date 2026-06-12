@@ -1,18 +1,11 @@
 package com.example.smartridetrajetservice.controller;
 
-
-
-
-import com.example.smartridetrajetservice.User;
-import com.example.smartridetrajetservice.dto.ReservationDto;
 import com.example.smartridetrajetservice.dto.TrajetRequestDTO;
 import com.example.smartridetrajetservice.dto.TrajetResponseDTO;
 import com.example.smartridetrajetservice.model.StatutTrajet;
 import com.example.smartridetrajetservice.service.TrajetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,31 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TrajetController {
 
-
     private final TrajetService trajetService;
-
-    @Value("${welcome.message}")
-    private String welcomeMessage;
-    @GetMapping("/welcome")
-    public String welcome() {
-        return welcomeMessage;
-    }
-
-
-
-   @RequestMapping("api/users")
-    public List<User> getAllUsers(){
-        return trajetService.getUsers();
-    }
-
-
-
-
-    @GetMapping("/api/users/{id}")
-    public User getUserById(@PathVariable("id") Long id){
-        return trajetService.getuserbyid(id);
-    }
-
 
     // POST /api/trajets — Créer un trajet
     @PostMapping

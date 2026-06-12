@@ -1,4 +1,4 @@
-package com.example.smartridetrajetservice;
+package com.example.smartridetrajetservice.dto;
 
 import lombok.*;
 
@@ -6,14 +6,10 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class User {
+public class UserDTO {
     private Long id;
-
     private String nom;
     private String prenom;
     private String email;
-
-
-
+    private String role;
 }
