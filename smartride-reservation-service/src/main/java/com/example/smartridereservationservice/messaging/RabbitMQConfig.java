@@ -24,9 +24,11 @@ public class RabbitMQConfig {
     public static final String EXCHANGE = "smartride.exchange";
 
     // Clés de routage
-    public static final String RK_TRAJET_STATUS        = "trajet.status.changed";
-    public static final String RK_RESERVATION_CONFIRMED = "reservation.confirmed";
-    public static final String RK_PAYMENT_COMPLETED    = "payment.completed";
+    public static final String RK_TRAJET_STATUS         = "trajet.status.changed";
+    public static final String RK_RESERVATION_CONFIRMED  = "reservation.confirmed";
+    public static final String RK_RESERVATION_CREATED    = "reservation.created";
+    public static final String RK_RESERVATION_CANCELLED  = "reservation.cancelled";
+    public static final String RK_PAYMENT_COMPLETED     = "payment.completed";
 
     // Files consommées par reservation-service
     public static final String Q_TRAJET_STATUS     = "reservation.trajet-status.queue";
