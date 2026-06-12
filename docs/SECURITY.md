@@ -62,24 +62,24 @@ TOKEN=$(curl -s -X POST \
 
 ```bash
 # Sans token -> 401 Unauthorized
-curl -i http://localhost:9001/api/trajets
+curl -i http://localhost:9001/smartride_trajet/api/trajets
 
 # Avec token -> 200
-curl -i http://localhost:9001/api/trajets -H "Authorization: Bearer $TOKEN"
+curl -i http://localhost:9001/smartride_trajet/api/trajets -H "Authorization: Bearer $TOKEN"
 ```
 
 ## 5. Matrice d'autorisation (RBAC au Gateway)
 
-| Route                     | Rôles autorisés              |
-|---------------------------|------------------------------|
-| `/api/users/register`     | public                       |
-| `/api/users/login`        | public                       |
-| `/api/users/**` (autres)  | ADMIN                        |
-| `/api/trajets/**`         | CLIENT, CHAUFFEUR, ADMIN     |
-| `/api/reservations/**`    | CLIENT, CHAUFFEUR, ADMIN     |
-| `/api/drivers/**`         | CHAUFFEUR, ADMIN             |
-| `/payments/**`            | CLIENT, ADMIN                |
-| `/actuator/**`, swagger   | public                       |
+| Route                                      | Rôles autorisés                               |
+|--------------------------------------------|-----------------------------------------------|
+| `/api/users/register`                      | public                                        |
+| `/api/users/login`                         | public                                        |
+| `/api/users/**` (autres)                   | ADMIN                                         |
+| `/smartride_trajet/api/trajets/**`         | CLIENT, CHAUFFEUR, ADMIN                      |
+| `/api/reservations/**`                     | CLIENT, CHAUFFEUR, ADMIN                      |
+| `/api/drivers/**`                          | CHAUFFEUR, ADMIN                              |
+| `/payments/**`                             | CLIENT, ADMIN                                 |
+| `/actuator/**`, swagger                    | public                                        |
 
 ## 6. Scénarios de démonstration (rôles)
 

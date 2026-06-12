@@ -69,7 +69,7 @@ curl http://localhost:9001/payments/trajet/10 -H "Authorization: Bearer $TOKEN"
 ### Démo scénario 1 (trajet)
 ```bash
 # Annuler un trajet ayant des réservations -> publie trajet.status.changed (ANNULE)
-curl -X PUT http://localhost:9001/api/trajets/10/annuler -H "Authorization: Bearer $TOKEN"
+curl -X PUT http://localhost:9001/smartride_trajet/api/trajets/10/annuler -H "Authorization: Bearer $TOKEN"
 
 # reservation-service log : "Réservation ... annulée suite à l'annulation du trajet 10"
 # Vérifier :
