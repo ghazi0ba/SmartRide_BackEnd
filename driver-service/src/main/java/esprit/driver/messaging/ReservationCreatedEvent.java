@@ -1,9 +1,13 @@
-package com.example.smartridereservationservice.messaging;
+package esprit.driver.messaging;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Événement reçu quand une réservation est créée (publié par reservation-service).
+ * Réplique locale pour permettre la désérialisation JSON côté driver-service.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

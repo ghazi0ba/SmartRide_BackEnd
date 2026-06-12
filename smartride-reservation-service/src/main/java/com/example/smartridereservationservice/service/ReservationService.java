@@ -62,6 +62,7 @@ public class ReservationService {
         Reservation reservation = Reservation.builder()
                 .userId(requestDTO.getUserId())
                 .trajetId(requestDTO.getTrajetId())
+                .driverId(trajet.getChauffeurId())
                 .nombrePassagers(requestDTO.getNombrePassagers())
                 .status(ReservationStatus.PENDING)
                 .dateReservation(LocalDateTime.now())
@@ -78,6 +79,7 @@ public class ReservationService {
                 new com.example.smartridereservationservice.messaging.ReservationCreatedEvent(
                         savedReservation.getReservationId(),
                         savedReservation.getUserId(),
+                        savedReservation.getDriverId(),
                         savedReservation.getTrajetId(),
                         savedReservation.getNombrePassagers(),
                         savedReservation.getPrixTotal()
@@ -261,6 +263,7 @@ public class ReservationService {
         validateNombrePassagers(requestDTO.getNombrePassagers(), trajet.getPlacesDisponibles());
 
         reservation.setTrajetId(requestDTO.getTrajetId());
+        reservation.setDriverId(trajet.getChauffeurId());
         reservation.setNombrePassagers(requestDTO.getNombrePassagers());
         reservation.setPrixTotal(trajet.getPrix() * requestDTO.getNombrePassagers());
         reservation.setDateModification(LocalDateTime.now());

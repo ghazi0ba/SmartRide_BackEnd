@@ -186,6 +186,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
       SPRING_CONFIG_IMPORT: optional:configserver:http://configserver:8888
+      SPRING_RABBITMQ_HOST: rabbitmq
     ports:
       - "8085:8085"
     depends_on:
@@ -193,6 +194,8 @@ services:
         condition: service_started
       configserver:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   mysql-data:
