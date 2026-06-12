@@ -1,0 +1,316 @@
+{
+	"info": {
+		"_postman_id": "b3a7e2c1-9d4f-4a21-8c6e-reservation01",
+		"name": "SmartRide - Reservation Service",
+		"description": "Tests all reservation-service endpoints.\n\nBASE URL targets the service DIRECTLY (bypasses the gateway/Keycloak auth):\n  http://localhost:8084/smartride_reservation\n\nPREREQUISITES for POST (Create):\n- user-service (8081) running with a valid user matching {{userId}}\n- trajet-service (8082) running with a trajet matching {{trajetId}} whose statut is DISPONIBLE and placesDisponibles >= nombrePassagers\n- RabbitMQ running (the service publishes reservation.created on success)\n\nFLOW: run '1. Create' first — it saves {{reservationId}} into the collection variables, which every other request reuses. Status transitions follow the state machine PENDING -> CONFIRMED -> COMPLETED (or -> CANCELLED), so not every request will succeed back-to-back (e.g. you cannot Cancel an already Completed reservation).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8084/smartride_reservation" },
+		{ "key": "reservationId", "value": "" },
+		{ "key": "userId", "value": "1" },
+		{ "key": "driverId", "value": "1" },
+		{ "key": "trajetId", "value": "1" },
+		{ "key": "status", "value": "PENDING" }
+	],
+	"item": [
+		{
+			"name": "1. Create Reservation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Created (201)', () => pm.response.to.have.status(201));",
+							"if (pm.response.code === 201) {",
+							"  const j = pm.response.json();",
+							"  pm.collectionVariables.set('reservationId', j.reservationId);",
+							"  console.log('Saved reservationId =', j.reservationId);",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [ { "key": "Content-Type", "value": "application/json" } ],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": {{userId}},\n  \"trajetId\": {{trajetId}},\n  \"nombrePassagers\": 2\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations" ]
+				},
+				"description": "Creates a reservation (status PENDING). Validates the user + trajet via Feign, computes prixTotal, sets driverId from the trajet's chauffeurId, and publishes reservation.created. Saves reservationId for the other requests."
+			}
+		},
+		{
+			"name": "2. Get All Reservations",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [ "pm.test('OK (200)', () => pm.response.to.have.status(200));" ]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations" ]
+				}
+			}
+		},
+		{
+			"name": "3. Get Reservation By Id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [ "pm.test('OK (200)', () => pm.response.to.have.status(200));" ]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations/{{reservationId}}",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations", "{{reservationId}}" ]
+				}
+			}
+		},
+		{
+			"name": "4. Get Reservations By User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [ "pm.test('OK (200)', () => pm.response.to.have.status(200));" ]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations/user/{{userId}}",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations", "user", "{{userId}}" ]
+				}
+			}
+		},
+		{
+			"name": "5. Get Reservations By Driver",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [ "pm.test('OK (200)', () => pm.response.to.have.status(200));" ]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations/driver/{{driverId}}",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations", "driver", "{{driverId}}" ]
+				}
+			}
+		},
+		{
+			"name": "6. Get Reservations By Trajet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [ "pm.test('OK (200)', () => pm.response.to.have.status(200));" ]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations/trajet/{{trajetId}}",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations", "trajet", "{{trajetId}}" ]
+				}
+			}
+		},
+		{
+			"name": "7. Get Reservations By Status",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [ "pm.test('OK (200)', () => pm.response.to.have.status(200));" ]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations/status/{{status}}",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations", "status", "{{status}}" ]
+				},
+				"description": "status path variable accepts: PENDING, CONFIRMED, COMPLETED, CANCELLED."
+			}
+		},
+		{
+			"name": "8. Update Reservation (PENDING only)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [ "pm.test('OK (200)', () => pm.response.to.have.status(200));" ]
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [ { "key": "Content-Type", "value": "application/json" } ],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": {{userId}},\n  \"trajetId\": {{trajetId}},\n  \"nombrePassagers\": 3\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations/{{reservationId}}",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations", "{{reservationId}}" ]
+				},
+				"description": "Updates nombrePassagers/trajet and recomputes prixTotal. Only allowed while status is PENDING."
+			}
+		},
+		{
+			"name": "9. Confirm Reservation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [ "pm.test('OK (200)', () => pm.response.to.have.status(200));" ]
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations/{{reservationId}}/confirmer",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations", "{{reservationId}}", "confirmer" ]
+				},
+				"description": "PENDING -> CONFIRMED. Publishes reservation.confirmed (payment-service creates a payment)."
+			}
+		},
+		{
+			"name": "10. Complete Reservation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [ "pm.test('OK (200)', () => pm.response.to.have.status(200));" ]
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations/{{reservationId}}/completer",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations", "{{reservationId}}", "completer" ]
+				},
+				"description": "-> COMPLETED and writes a ReservationHistory entry."
+			}
+		},
+		{
+			"name": "11. Cancel Reservation (PENDING/CONFIRMED only)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [ "pm.test('OK (200)', () => pm.response.to.have.status(200));" ]
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations/{{reservationId}}/annuler",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations", "{{reservationId}}", "annuler" ]
+				},
+				"description": "-> CANCELLED (within the 30-min delaiAnnulationLimite). Publishes reservation.cancelled. Fails if already COMPLETED/CANCELLED. NOTE: run this on a fresh reservation, not after '10. Complete'."
+			}
+		},
+		{
+			"name": "12. Get Historique By User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [ "pm.test('OK (200)', () => pm.response.to.have.status(200));" ]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations/historique/{{userId}}",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations", "historique", "{{userId}}" ]
+				},
+				"description": "Returns ReservationHistory entries (created on Complete/Cancel)."
+			}
+		},
+		{
+			"name": "13. Delete Reservation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [ "pm.test('No Content (204)', () => pm.response.to.have.status(204));" ]
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/reservations/{{reservationId}}",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "api", "reservations", "{{reservationId}}" ]
+				},
+				"description": "Hard-deletes the reservation. Returns 204."
+			}
+		}
+	]
+}
