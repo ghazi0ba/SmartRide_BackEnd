@@ -1,17 +1,12 @@
 package com.example.smartridetrajetservice.service;
 
-
-
-
-
-import com.example.smartridetrajetservice.ReservationClient;
-import com.example.smartridetrajetservice.User;
-import com.example.smartridetrajetservice.UserClient;
-import com.example.smartridetrajetservice.dto.ReservationDto;
+import com.example.smartridetrajetservice.client.UserClient;
 import com.example.smartridetrajetservice.dto.TrajetRequestDTO;
 import com.example.smartridetrajetservice.dto.TrajetResponseDTO;
+import com.example.smartridetrajetservice.dto.UserDTO;
 import com.example.smartridetrajetservice.exception.TrajetNotFoundException;
 import com.example.smartridetrajetservice.exception.TrajetStatutInvalideException;
+import com.example.smartridetrajetservice.exception.UserNotFoundException;
 import com.example.smartridetrajetservice.mapper.TrajetMapper;
 import com.example.smartridetrajetservice.model.StatutTrajet;
 import com.example.smartridetrajetservice.model.Trajet;
@@ -19,7 +14,6 @@ import com.example.smartridetrajetservice.model.TypeTrajet;
 import com.example.smartridetrajetservice.repository.TrajetRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,27 +30,15 @@ public class TrajetService {
 
     private final TrajetRepository trajetRepository;
     private final TrajetMapper trajetMapper;
-
-
-
-    @Autowired
-    private UserClient userServiceClient;
-
-    public  List<User> getUsers(){
-        return userServiceClient.getAllUsers();
-    }
-
-
-
-    public User getuserbyid(Long id){
-        return userServiceClient.getUserById(id);
-    }
-
+    private final UserClient userClient;
+    private final com.example.smartridetrajetservice.messaging.TrajetEventPublisher trajetEventPublisher;
 
     // ─── Créer un trajet ───────────────────────────────────────────────────────
 
     public TrajetResponseDTO creerTrajet(TrajetRequestDTO requestDTO) {
         log.info("Création d'un nouveau trajet pour le passager {}", requestDTO.getPassagerId());
+
+        validateUser(requestDTO.getPassagerId(), "passager");
 
         Trajet trajet = trajetMapper.toEntity(requestDTO);
 
@@ -127,6 +109,8 @@ public class TrajetService {
     // ─── Accepter un trajet (chauffeur) ───────────────────────────────────────
 
     public TrajetResponseDTO accepterTrajet(Long trajetId, Long chauffeurId) {
+        validateUser(chauffeurId, "chauffeur");
+
         Trajet trajet = getTrajetOuException(trajetId);
 
         if (trajet.getStatut() != StatutTrajet.EN_ATTENTE) {
@@ -155,7 +139,9 @@ public class TrajetService {
         trajet.setStatut(StatutTrajet.EN_COURS);
         trajet.setDateDebut(LocalDateTime.now());
         log.info("Trajet {} démarré", trajetId);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+        TrajetResponseDTO dto = trajetMapper.toDTO(trajetRepository.save(trajet));
+        trajetEventPublisher.publishStatusChanged(trajetId, StatutTrajet.EN_COURS.name());
+        return dto;
     }
 
     // ─── Terminer un trajet ────────────────────────────────────────────────────
@@ -172,7 +158,9 @@ public class TrajetService {
         trajet.setStatut(StatutTrajet.TERMINE);
         trajet.setDateFin(LocalDateTime.now());
         log.info("Trajet {} terminé", trajetId);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+        TrajetResponseDTO dto = trajetMapper.toDTO(trajetRepository.save(trajet));
+        trajetEventPublisher.publishStatusChanged(trajetId, StatutTrajet.TERMINE.name());
+        return dto;
     }
 
     // ─── Annuler un trajet ─────────────────────────────────────────────────────
@@ -188,7 +176,9 @@ public class TrajetService {
 
         trajet.setStatut(StatutTrajet.ANNULE);
         log.info("Trajet {} annulé", trajetId);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+        TrajetResponseDTO dto = trajetMapper.toDTO(trajetRepository.save(trajet));
+        trajetEventPublisher.publishStatusChanged(trajetId, StatutTrajet.ANNULE.name());
+        return dto;
     }
 
     // ─── Supprimer un trajet ───────────────────────────────────────────────────
@@ -206,6 +196,20 @@ public class TrajetService {
     private Trajet getTrajetOuException(Long id) {
         return trajetRepository.findById(id)
                 .orElseThrow(() -> new TrajetNotFoundException("Trajet introuvable avec l'ID : " + id));
+    }
+
+    private void validateUser(Long userId, String role) {
+        try {
+            UserDTO user = userClient.getUserById(userId);
+            if (user == null) {
+                throw new UserNotFoundException("Utilisateur introuvable (rôle: " + role + ", id: " + userId + ")");
+            }
+        } catch (UserNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Erreur lors de la validation du {} id={}", role, userId, e);
+            throw new UserNotFoundException("Service utilisateur indisponible ou " + role + " introuvable : " + userId);
+        }
     }
 
     private boolean coordonneesDisponibles(Trajet trajet) {

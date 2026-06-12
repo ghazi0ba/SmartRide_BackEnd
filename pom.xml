@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>esprit.smartride</groupId>
+    <artifactId>smartride-backend</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>SmartRide Backend (aggregator)</name>
+    <description>POM agrégateur : regroupe les modules pour les importer/builder ensemble.</description>
+
+    <!--
+        Agrégateur uniquement : chaque module conserve son propre <parent>
+        (spring-boot-starter-parent) et ses propres versions. Ce pom ne fait que
+        lister les modules pour qu'IntelliJ les importe d'un coup et que
+        `mvn install` à la racine les construise tous.
+    -->
+    <modules>
+        <module>EurekaServer</module>
+        <module>ConfigServer</module>
+        <module>ApiGateway</module>
+        <module>smartride-user-service</module>
+        <module>smartride-trajet-service</module>
+        <module>smartride-payment-service</module>
+        <module>smartride-reservation-service</module>
+        <module>driver-service</module>
+    </modules>
+</project>

@@ -13,6 +13,8 @@ public interface ReservationRepository extends MongoRepository<Reservation, Stri
 
     List<Reservation> findByUserId(Long userId);
 
+    List<Reservation> findByDriverId(Long driverId);
+
     List<Reservation> findByStatus(ReservationStatus status);
 
     Optional<Reservation> findByUserIdAndTrajetId(Long userId, Long trajetId);

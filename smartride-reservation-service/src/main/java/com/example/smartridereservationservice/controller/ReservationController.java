@@ -48,6 +48,15 @@ public class ReservationController {
     }
 
     /**
+     * GET /api/reservations/driver/{driverId} — Récupérer les réservations d'un chauffeur
+     */
+    @GetMapping("/driver/{driverId}")
+    public ResponseEntity<List<ReservationResponseDTO>> getReservationsByDriver(@PathVariable Long driverId) {
+        List<ReservationResponseDTO> reservations = reservationService.getReservationsByDriver(driverId);
+        return ResponseEntity.ok(reservations);
+    }
+
+    /**
      * GET /api/reservations/trajet/{trajetId} — Récupérer les réservations d'un trajet
      */
     @GetMapping("/trajet/{trajetId}")

@@ -1,0 +1,199 @@
+name: smartride
+
+services:
+  # ============================ INFRASTRUCTURE ============================
+
+  mysql:
+    image: mysql:8.0
+    container_name: smartride-mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: smartride_trajet
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mongo:
+    image: mongo:7
+    container_name: smartride-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: smartride-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: smartride-keycloak
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak/realm-export:/opt/keycloak/data/import:ro
+
+  # ============================ SPRING CLOUD CORE ============================
+
+  eureka:
+    build: ./EurekaServer
+    container_name: smartride-eureka
+    ports:
+      - "8761:8761"
+
+  configserver:
+    build: ./ConfigServer
+    container_name: smartride-configserver
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+    ports:
+      - "8888:8888"
+    depends_on:
+      eureka:
+        condition: service_started
+
+  gateway:
+    build: ./ApiGateway
+    container_name: smartride-gateway
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+      # Les clés JWT sont récupérées dans le réseau interne (keycloak:8080)...
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://keycloak:8080/realms/smartride/protocol/openid-connect/certs
+      # ...tandis que l'issuer reste localhost:8080 pour matcher le claim iss des tokens
+      # émis aux clients (Postman/Front) via http://localhost:8080.
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: http://localhost:8080/realms/smartride
+    ports:
+      - "9001:9001"
+    depends_on:
+      eureka:
+        condition: service_started
+      keycloak:
+        condition: service_started
+
+  # ============================ MICROSERVICES MÉTIER ============================
+
+  user-service:
+    build: ./smartride-user-service
+    container_name: smartride-user-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SPRING_CONFIG_IMPORT: optional:configserver:http://configserver:8888
+    ports:
+      - "8081:8081"
+    depends_on:
+      eureka:
+        condition: service_started
+      configserver:
+        condition: service_started
+
+  trajet-service:
+    build: ./smartride-trajet-service
+    container_name: smartride-trajet-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SPRING_CONFIG_IMPORT: optional:configserver:http://configserver:8888
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/smartride_trajet?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ""
+      SPRING_RABBITMQ_HOST: rabbitmq
+    ports:
+      - "8082:8082"
+    depends_on:
+      eureka:
+        condition: service_started
+      configserver:
+        condition: service_started
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  payment-service:
+    build: ./smartride-payment-service
+    container_name: smartride-payment-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SPRING_CONFIG_IMPORT: optional:configserver:http://configserver:8888
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/paymentservice?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_RABBITMQ_HOST: rabbitmq
+    ports:
+      - "8083:8083"
+    depends_on:
+      eureka:
+        condition: service_started
+      configserver:
+        condition: service_started
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  reservation-service:
+    build: ./smartride-reservation-service
+    container_name: smartride-reservation-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SPRING_CONFIG_IMPORT: optional:configserver:http://configserver:8888
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/smartride
+      SPRING_RABBITMQ_HOST: rabbitmq
+    ports:
+      - "8084:8084"
+    depends_on:
+      eureka:
+        condition: service_started
+      configserver:
+        condition: service_started
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  driver-service:
+    build: ./driver-service
+    container_name: smartride-driver-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SPRING_CONFIG_IMPORT: optional:configserver:http://configserver:8888
+    ports:
+      - "8085:8085"
+    depends_on:
+      eureka:
+        condition: service_started
+      configserver:
+        condition: service_started
+
+volumes:
+  mysql-data:
+  mongo-data:
