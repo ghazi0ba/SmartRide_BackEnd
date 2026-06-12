@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +31,7 @@ public class TrajetService {
     private final TrajetRepository trajetRepository;
     private final TrajetMapper trajetMapper;
     private final UserClient userClient;
+    private final com.example.smartridetrajetservice.messaging.TrajetEventPublisher trajetEventPublisher;
 
     // ─── Créer un trajet ───────────────────────────────────────────────────────
 
@@ -137,7 +139,9 @@ public class TrajetService {
         trajet.setStatut(StatutTrajet.EN_COURS);
         trajet.setDateDebut(LocalDateTime.now());
         log.info("Trajet {} démarré", trajetId);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+        TrajetResponseDTO dto = trajetMapper.toDTO(trajetRepository.save(trajet));
+        trajetEventPublisher.publishStatusChanged(trajetId, StatutTrajet.EN_COURS.name());
+        return dto;
     }
 
     // ─── Terminer un trajet ────────────────────────────────────────────────────
@@ -154,7 +158,9 @@ public class TrajetService {
         trajet.setStatut(StatutTrajet.TERMINE);
         trajet.setDateFin(LocalDateTime.now());
         log.info("Trajet {} terminé", trajetId);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+        TrajetResponseDTO dto = trajetMapper.toDTO(trajetRepository.save(trajet));
+        trajetEventPublisher.publishStatusChanged(trajetId, StatutTrajet.TERMINE.name());
+        return dto;
     }
 
     // ─── Annuler un trajet ─────────────────────────────────────────────────────
@@ -170,7 +176,9 @@ public class TrajetService {
 
         trajet.setStatut(StatutTrajet.ANNULE);
         log.info("Trajet {} annulé", trajetId);
-        return trajetMapper.toDTO(trajetRepository.save(trajet));
+        TrajetResponseDTO dto = trajetMapper.toDTO(trajetRepository.save(trajet));
+        trajetEventPublisher.publishStatusChanged(trajetId, StatutTrajet.ANNULE.name());
+        return dto;
     }
 
     // ─── Supprimer un trajet ───────────────────────────────────────────────────
