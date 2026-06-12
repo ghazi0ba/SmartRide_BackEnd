@@ -19,6 +19,11 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
     @ExceptionHandler(TrajetStatutInvalideException.class)
     public ResponseEntity<Map<String, Object>> handleStatutInvalide(TrajetStatutInvalideException ex) {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
