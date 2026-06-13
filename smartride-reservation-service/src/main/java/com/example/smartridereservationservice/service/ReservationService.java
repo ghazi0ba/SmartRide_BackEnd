@@ -12,6 +12,7 @@ import com.example.smartridereservationservice.model.ReservationHistory;
 import com.example.smartridereservationservice.model.ReservationStatus;
 import com.example.smartridereservationservice.repository.ReservationHistoryRepository;
 import com.example.smartridereservationservice.repository.ReservationRepository;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,7 @@ public class ReservationService {
         log.info("Trajet validé: {}", trajet.getId());
 
         // Validation 3: Vérifier le nombre de passagers
-        validateNombrePassagers(requestDTO.getNombrePassagers(), trajet.getPlacesDisponibles());
+        validateNombrePassagers(requestDTO.getNombrePassagers());
         log.info("Nombre de passagers validé");
 
         // Validation 4: Empêcher les double réservations
@@ -62,17 +63,29 @@ public class ReservationService {
         Reservation reservation = Reservation.builder()
                 .userId(requestDTO.getUserId())
                 .trajetId(requestDTO.getTrajetId())
+                .driverId(trajet.getChauffeurId())
                 .nombrePassagers(requestDTO.getNombrePassagers())
                 .status(ReservationStatus.PENDING)
                 .dateReservation(LocalDateTime.now())
                 .dateCreation(LocalDateTime.now())
                 .dateModification(LocalDateTime.now())
-                .prixTotal(trajet.getPrix() * requestDTO.getNombrePassagers())
+                .prixTotal(resolvePrixTotal(trajet))
                 .delaiAnnulationLimite(LocalDateTime.now().plusMinutes(DELAI_ANNULATION_MINUTES))
                 .build();
 
         Reservation savedReservation = reservationRepository.save(reservation);
         log.info("Réservation créée avec succès: {}", savedReservation.getReservationId());
+
+        reservationEventPublisher.publishCreated(
+                new com.example.smartridereservationservice.messaging.ReservationCreatedEvent(
+                        savedReservation.getReservationId(),
+                        savedReservation.getUserId(),
+                        savedReservation.getDriverId(),
+                        savedReservation.getTrajetId(),
+                        savedReservation.getNombrePassagers(),
+                        savedReservation.getPrixTotal()
+                )
+        );
 
         return mapToResponseDTO(savedReservation, "Réservation créée avec succès");
     }
@@ -180,6 +193,15 @@ public class ReservationService {
         historyRepository.save(history);
         log.info("Réservation annulée: {}", reservationId);
 
+        reservationEventPublisher.publishCancelled(
+                new com.example.smartridereservationservice.messaging.ReservationCancelledEvent(
+                        updated.getReservationId(),
+                        updated.getUserId(),
+                        updated.getTrajetId(),
+                        updated.getNombrePassagers()
+                )
+        );
+
         return mapToResponseDTO(updated, "Réservation annulée avec succès");
     }
 
@@ -212,6 +234,56 @@ public class ReservationService {
                 log.info("Réservation {} annulée suite à l'annulation du trajet {}", r.getReservationId(), trajetId);
             }
         }
+    }
+
+    /**
+     * Récupérer toutes les réservations
+     */
+    public List<ReservationResponseDTO> getAllReservations() {
+        log.info("Récupération de toutes les réservations");
+        return reservationRepository.findAll()
+                .stream()
+                .map(r -> mapToResponseDTO(r, ""))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Mettre à jour le nombre de passagers (et recalculer le prix)
+     */
+    public ReservationResponseDTO updateReservation(String reservationId, ReservationRequestDTO requestDTO) {
+        log.info("Mise à jour de la réservation: {}", reservationId);
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFoundException("Réservation non trouvée: " + reservationId));
+
+        if (reservation.getStatus() != ReservationStatus.PENDING) {
+            throw new InvalidReservationException("Seules les réservations en attente peuvent être modifiées");
+        }
+
+        TrajetDTO trajet = validateTrajet(requestDTO.getTrajetId());
+        validateNombrePassagers(requestDTO.getNombrePassagers());
+
+        reservation.setTrajetId(requestDTO.getTrajetId());
+        reservation.setDriverId(trajet.getChauffeurId());
+        reservation.setNombrePassagers(requestDTO.getNombrePassagers());
+        reservation.setPrixTotal(resolvePrixTotal(trajet));
+        reservation.setDateModification(LocalDateTime.now());
+
+        Reservation updated = reservationRepository.save(reservation);
+        log.info("Réservation {} mise à jour", reservationId);
+        return mapToResponseDTO(updated, "Réservation mise à jour");
+    }
+
+    /**
+     * Supprimer une réservation
+     */
+    public void supprimerReservation(String reservationId) {
+        log.info("Suppression de la réservation: {}", reservationId);
+        if (!reservationRepository.existsById(reservationId)) {
+            throw new ReservationNotFoundException("Réservation non trouvée: " + reservationId);
+        }
+        reservationRepository.deleteById(reservationId);
+        log.info("Réservation {} supprimée", reservationId);
     }
 
     public void markReservationAsPaid(String reservationId) {
@@ -267,48 +339,57 @@ public class ReservationService {
      * Validations métier
      */
     private UserDTO validateUser(Long userId) {
+        UserDTO user;
         try {
-            UserDTO user = userClient.getUserById(userId);
-            if (user == null) {
-                throw new UserNotFoundException("Utilisateur non trouvé: " + userId);
-            }
-            return user;
+            user = userClient.getUserById(userId);
+        } catch (FeignException.NotFound e) {
+            throw new UserNotFoundException("Utilisateur non trouvé: " + userId, e);
         } catch (Exception e) {
-            log.error("Erreur lors de la validation de l'utilisateur: {}", userId, e);
-            throw new UserNotFoundException("Utilisateur non trouvé ou service indisponible: " + userId, e);
+            log.error("Service utilisateur indisponible: {}", userId, e);
+            throw new UserNotFoundException("Service utilisateur indisponible: " + userId, e);
         }
+        if (user == null) {
+            throw new UserNotFoundException("Utilisateur non trouvé: " + userId);
+        }
+        return user;
     }
+
+    // Statuts d'un trajet qui autorisent une réservation.
+    private static final java.util.Set<String> STATUTS_RESERVABLES =
+            java.util.Set.of("EN_ATTENTE", "ACCEPTE");
 
     private TrajetDTO validateTrajet(Long trajetId) {
+        TrajetDTO trajet;
         try {
-            TrajetDTO trajet = trajetClient.getTrajetById(trajetId);
-            if (trajet == null) {
-                throw new TrajetNotFoundException("Trajet non trouvé: " + trajetId);
-            }
-
-            // Vérifier que le trajet est disponible
-            if (!trajet.getStatut().equalsIgnoreCase("DISPONIBLE")) {
-                throw new InvalidReservationException("Le trajet n'est pas disponible pour la réservation");
-            }
-
-            return trajet;
+            trajet = trajetClient.getTrajetById(trajetId);
+        } catch (FeignException.NotFound e) {
+            throw new TrajetNotFoundException("Trajet non trouvé: " + trajetId, e);
         } catch (Exception e) {
-            log.error("Erreur lors de la validation du trajet: {}", trajetId, e);
-            throw new TrajetNotFoundException("Trajet non trouvé ou service indisponible: " + trajetId, e);
+            log.error("Service trajet indisponible: {}", trajetId, e);
+            throw new TrajetNotFoundException("Service trajet indisponible: " + trajetId, e);
         }
+        if (trajet == null) {
+            throw new TrajetNotFoundException("Trajet non trouvé: " + trajetId);
+        }
+        // Vérifier que le trajet est dans un statut réservable
+        if (trajet.getStatut() == null || !STATUTS_RESERVABLES.contains(trajet.getStatut().toUpperCase())) {
+            throw new InvalidReservationException(
+                    "Le trajet n'est pas disponible pour la réservation (statut: " + trajet.getStatut() + ")");
+        }
+        return trajet;
     }
 
-    private void validateNombrePassagers(Integer nombrePassagers, Integer placesDisponibles) {
+    private void validateNombrePassagers(Integer nombrePassagers) {
+        // nombrePassagers est purement informatif : le trajet-service ne gère pas
+        // d'inventaire de places. On vérifie seulement qu'il est cohérent.
         if (nombrePassagers == null || nombrePassagers <= 0) {
             throw new InvalidReservationException("Le nombre de passagers doit être supérieur à 0");
         }
+    }
 
-        if (nombrePassagers > placesDisponibles) {
-            throw new InvalidReservationException(
-                    String.format("Nombre de passagers invalide. Places disponibles: %d, demandé: %d",
-                            placesDisponibles, nombrePassagers)
-            );
-        }
+    // Tarif total = tarif estimé du trajet (forfait par course, indépendant du nombre de passagers).
+    private Double resolvePrixTotal(TrajetDTO trajet) {
+        return trajet.getPrixEstime() != null ? trajet.getPrixEstime() : 0.0;
     }
 
     private void validateDoublesReservations(Long userId, Long trajetId) {

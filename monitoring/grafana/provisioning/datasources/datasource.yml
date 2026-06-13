@@ -1,0 +1,18 @@
+# Auto-provisioned Prometheus datasource for Grafana.
+# Loaded on Grafana startup so no manual datasource setup is needed.
+apiVersion: 1
+
+# Remove any pre-existing "Prometheus" datasource first, so re-provisioning
+# with a fixed uid does not collide with one created on an earlier run.
+deleteDatasources:
+  - name: Prometheus
+    orgId: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true

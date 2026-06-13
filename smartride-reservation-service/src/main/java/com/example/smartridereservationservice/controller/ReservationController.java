@@ -21,6 +21,14 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     /**
+     * GET /api/reservations — Lister toutes les réservations
+     */
+    @GetMapping
+    public ResponseEntity<List<ReservationResponseDTO>> getAllReservations() {
+        return ResponseEntity.ok(reservationService.getAllReservations());
+    }
+
+    /**
      * POST /api/reservations — Créer une réservation
      */
     @PostMapping
@@ -108,5 +116,25 @@ public class ReservationController {
     public ResponseEntity<List<ReservationHistory>> getHistoriqueUser(@PathVariable Long userId) {
         List<ReservationHistory> historique = reservationService.getHistoriqueUser(userId);
         return ResponseEntity.ok(historique);
+    }
+
+    /**
+     * PUT /api/reservations/{id} — Mettre à jour une réservation
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<ReservationResponseDTO> updateReservation(
+            @PathVariable String id,
+            @Valid @RequestBody ReservationRequestDTO requestDTO) {
+        ReservationResponseDTO response = reservationService.updateReservation(id, requestDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * DELETE /api/reservations/{id} — Supprimer une réservation
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> supprimerReservation(@PathVariable String id) {
+        reservationService.supprimerReservation(id);
+        return ResponseEntity.noContent().build();
     }
 }

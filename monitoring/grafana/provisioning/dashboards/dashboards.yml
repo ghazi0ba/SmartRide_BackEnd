@@ -1,0 +1,15 @@
+# Auto-provisioned dashboard provider for Grafana.
+# Loads every *.json dashboard in this directory on startup.
+apiVersion: 1
+
+providers:
+  - name: 'SmartRide JVM dashboards'
+    orgId: 1
+    folder: 'JVM'
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false

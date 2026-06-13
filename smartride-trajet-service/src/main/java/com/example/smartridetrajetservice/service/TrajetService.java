@@ -160,6 +160,8 @@ public class TrajetService {
         log.info("Trajet {} terminé", trajetId);
         TrajetResponseDTO dto = trajetMapper.toDTO(trajetRepository.save(trajet));
         trajetEventPublisher.publishStatusChanged(trajetId, StatutTrajet.TERMINE.name());
+        // Notifie rating-service pour créer un avis "en attente de notation"
+        trajetEventPublisher.publishTerminated(trajet.getPassagerId(), trajet.getChauffeurId(), trajetId);
         return dto;
     }
 

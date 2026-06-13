@@ -33,11 +33,10 @@ public class TrajetDTO {
 
     private String statut;
 
-    private Integer nombrePlaces;
+    private Double distanceKm;
 
-    private Integer placesDisponibles;
-
-    private Double prix;
+    // Tarif estimé du trajet, tel que renvoyé par le trajet-service.
+    private Double prixEstime;
 
     private LocalDateTime dateCreation;
 }
