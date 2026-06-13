@@ -21,4 +21,15 @@ public class TrajetEventPublisher {
         );
         log.info("[RabbitMQ →] TrajetStatusChangedEvent publié (trajetId={}, statut={})", trajetId, statut);
     }
+
+    public void publishTerminated(Long userId, Long chauffeurId, Long trajetId) {
+        TrajetTerminatedEvent event = new TrajetTerminatedEvent(userId, chauffeurId, trajetId);
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE,
+                RabbitMQConfig.RK_TRAJET_TERMINATED,
+                event
+        );
+        log.info("[RabbitMQ →] TrajetTerminatedEvent publié (trajetId={}, userId={}, chauffeurId={})",
+                trajetId, userId, chauffeurId);
+    }
 }

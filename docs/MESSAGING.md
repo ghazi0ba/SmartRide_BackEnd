@@ -1,7 +1,8 @@
 # Communication asynchrone — RabbitMQ
 
 Communication événementielle via un **exchange topic** unique `smartride.exchange`.
-Trois scénarios asynchrones, dont un impliquant le service **trajet**.
+Quatre scénarios asynchrones, dont un **polyglotte** (Java → NestJS) impliquant le
+microservice **rating-service**.
 
 ## Topologie
 
@@ -12,10 +13,11 @@ Trois scénarios asynchrones, dont un impliquant le service **trajet**.
    ──────────────                  │
    trajet.status.changed ──────────┼────► [reservation.trajet-status.queue]      → reservation-service
    reservation.confirmed ──────────┼────► [payment.reservation-confirmed.queue]  → payment-service
-   payment.completed ──────────────┴────► [reservation.payment-completed.queue]  → reservation-service
+   payment.completed ──────────────┼────► [reservation.payment-completed.queue]  → reservation-service
+   trajet.terminated ──────────────┴────► [rating.trajet-terminated.queue]        → rating-service (NestJS)
 ```
 
-## Les 3 scénarios
+## Les 4 scénarios
 
 ### Scénario 1 — Trajet → Reservation (annulation en cascade)
 - **Producteur** : `trajet-service` — sur `annulerTrajet` (et aussi `demarrerTrajet` / `terminerTrajet`),
@@ -37,6 +39,18 @@ Trois scénarios asynchrones, dont un impliquant le service **trajet**.
 > Les scénarios 2 et 3 s'enchaînent : confirmer une réservation déclenche
 > automatiquement la création du paiement, qui déclenche le marquage « payé ».
 
+### Scénario 4 — Trajet → Rating (polyglotte : Java → NestJS)
+- **Producteur** : `trajet-service` (Java) — sur `terminerTrajet` (statut → TERMINE), publie
+  `TrajetTerminatedEvent { userId, chauffeurId, trajetId }` avec la clé `trajet.terminated`.
+- **Consommateur** : `rating-service` (NestJS / Node.js) — file `rating.trajet-terminated.queue`
+  liée à l'exchange par la clé `trajet.terminated`. À réception, crée automatiquement un avis
+  « en attente de notation » (note 0, statut `pending`) pour ce trajet/chauffeur.
+
+> Démonstration intéressante : communication **inter-langages** (Spring/Java ↔ NestJS/Node)
+> via le même exchange RabbitMQ. La sérialisation est du JSON simple : le consommateur Node
+> lit le corps du message et ignore les en-têtes Spring, donc l'interopérabilité fonctionne
+> sans adaptation particulière.
+
 ## Démarrer RabbitMQ
 
 ```bash
@@ -47,6 +61,7 @@ Console de management : http://localhost:15672 (guest / guest)
 ## Démo
 
 Prérequis : Eureka, Config Server, Gateway, trajet/reservation/payment démarrés + RabbitMQ.
+Pour le scénario 4, ajouter le `rating-service` (NestJS) + un MongoDB local.
 
 ### Démo scénario 2 + 3 (enchaînés)
 ```bash
@@ -76,8 +91,39 @@ curl -X PUT http://localhost:9001/smartride_trajet/api/trajets/10/annuler -H "Au
 curl http://localhost:9001/api/reservations/trajet/10 -H "Authorization: Bearer $TOKEN"
 ```
 
-> Les chemins exacts des actions (`/confirmer`, `/annuler`, …) dépendent de vos
+### Démo scénario 4 (trajet → rating)
+```bash
+# 1) Terminer un trajet EN_COURS -> publie trajet.terminated
+curl -X PUT http://localhost:9001/api/trajets/{trajetId}/terminer -H "Authorization: Bearer $TOKEN"
+
+# 2) rating-service log : "Trajet termine recu" puis "Avis cree pour trajet: ..."
+
+# 3) Vérifier l'avis créé (statut "pending", note 0) :
+curl http://localhost:9001/api/ratings -H "Authorization: Bearer $TOKEN"
+```
+
+#### Test sans trajet-service (simulation intégrée)
+Le rating-service expose un endpoint qui publie lui-même l'événement, pratique pour tester
+le flux sans démarrer trajet-service :
+```bash
+curl -X POST http://localhost:8087/api/ratings/simulate/trajet-termine \
+  -H "Content-Type: application/json" \
+  -d '{ "userId": "1", "chauffeurId": "2", "trajetId": "10" }'
+```
+
+> Les chemins exacts des actions (`/confirmer`, `/annuler`, `/terminer`, …) dépendent de vos
 > `@PutMapping` ; ajustez selon vos controllers.
+
+## Intégration du rating-service (NestJS)
+
+- **Techno** : NestJS (Node.js), port **8087**, MongoDB local `mongodb://localhost:27017/rating-service`.
+- **Eureka** : s'enregistre comme `RATING-SERVICE` (via `eureka.config.ts`).
+- **Gateway** : route `/api/ratings/**` → `lb://RATING-SERVICE` (rôles CLIENT/CHAUFFEUR/ADMIN).
+- **Lancement** : `npm install` puis `npm run start:dev` (nécessite un **MongoDB local** sur 27017,
+  RabbitMQ et Eureka démarrés).
+
+> ⚠️ Le `rating-service` n'est **pas** un module Maven (c'est du Node/NestJS) : ne pas l'ajouter
+> au `pom.xml` agrégateur, sinon `mvn install` échoue.
 
 ## Détails techniques
 
@@ -86,5 +132,6 @@ curl http://localhost:9001/api/reservations/trajet/10 -H "Authorization: Bearer 
   entre services même si les classes d'événement ont des packages différents
   (pas de problème de `__TypeId__` / `ClassNotFoundException`).
 - **Déclaration de la topologie** : exchange, queues et bindings sont déclarés via des
-  `@Bean` ; Spring AMQP les crée automatiquement au démarrage (idempotent).
+  `@Bean` côté Java ; côté NestJS, le consommateur déclare l'exchange, la file et le binding
+  avec `amqplib` (`assertExchange` / `assertQueue` / `bindQueue`). Tout est idempotent.
 - **Durabilité** : exchange et queues sont `durable=true` (survivent à un redémarrage du broker).
