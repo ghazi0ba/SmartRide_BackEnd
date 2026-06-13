@@ -62,6 +62,7 @@ public class ReservationService {
         Reservation reservation = Reservation.builder()
                 .userId(requestDTO.getUserId())
                 .trajetId(requestDTO.getTrajetId())
+                .driverId(trajet.getChauffeurId())
                 .nombrePassagers(requestDTO.getNombrePassagers())
                 .status(ReservationStatus.PENDING)
                 .dateReservation(LocalDateTime.now())
@@ -73,6 +74,17 @@ public class ReservationService {
 
         Reservation savedReservation = reservationRepository.save(reservation);
         log.info("Réservation créée avec succès: {}", savedReservation.getReservationId());
+
+        reservationEventPublisher.publishCreated(
+                new com.example.smartridereservationservice.messaging.ReservationCreatedEvent(
+                        savedReservation.getReservationId(),
+                        savedReservation.getUserId(),
+                        savedReservation.getDriverId(),
+                        savedReservation.getTrajetId(),
+                        savedReservation.getNombrePassagers(),
+                        savedReservation.getPrixTotal()
+                )
+        );
 
         return mapToResponseDTO(savedReservation, "Réservation créée avec succès");
     }
@@ -180,6 +192,15 @@ public class ReservationService {
         historyRepository.save(history);
         log.info("Réservation annulée: {}", reservationId);
 
+        reservationEventPublisher.publishCancelled(
+                new com.example.smartridereservationservice.messaging.ReservationCancelledEvent(
+                        updated.getReservationId(),
+                        updated.getUserId(),
+                        updated.getTrajetId(),
+                        updated.getNombrePassagers()
+                )
+        );
+
         return mapToResponseDTO(updated, "Réservation annulée avec succès");
     }
 
@@ -212,6 +233,56 @@ public class ReservationService {
                 log.info("Réservation {} annulée suite à l'annulation du trajet {}", r.getReservationId(), trajetId);
             }
         }
+    }
+
+    /**
+     * Récupérer toutes les réservations
+     */
+    public List<ReservationResponseDTO> getAllReservations() {
+        log.info("Récupération de toutes les réservations");
+        return reservationRepository.findAll()
+                .stream()
+                .map(r -> mapToResponseDTO(r, ""))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Mettre à jour le nombre de passagers (et recalculer le prix)
+     */
+    public ReservationResponseDTO updateReservation(String reservationId, ReservationRequestDTO requestDTO) {
+        log.info("Mise à jour de la réservation: {}", reservationId);
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFoundException("Réservation non trouvée: " + reservationId));
+
+        if (reservation.getStatus() != ReservationStatus.PENDING) {
+            throw new InvalidReservationException("Seules les réservations en attente peuvent être modifiées");
+        }
+
+        TrajetDTO trajet = validateTrajet(requestDTO.getTrajetId());
+        validateNombrePassagers(requestDTO.getNombrePassagers(), trajet.getPlacesDisponibles());
+
+        reservation.setTrajetId(requestDTO.getTrajetId());
+        reservation.setDriverId(trajet.getChauffeurId());
+        reservation.setNombrePassagers(requestDTO.getNombrePassagers());
+        reservation.setPrixTotal(trajet.getPrix() * requestDTO.getNombrePassagers());
+        reservation.setDateModification(LocalDateTime.now());
+
+        Reservation updated = reservationRepository.save(reservation);
+        log.info("Réservation {} mise à jour", reservationId);
+        return mapToResponseDTO(updated, "Réservation mise à jour");
+    }
+
+    /**
+     * Supprimer une réservation
+     */
+    public void supprimerReservation(String reservationId) {
+        log.info("Suppression de la réservation: {}", reservationId);
+        if (!reservationRepository.existsById(reservationId)) {
+            throw new ReservationNotFoundException("Réservation non trouvée: " + reservationId);
+        }
+        reservationRepository.deleteById(reservationId);
+        log.info("Réservation {} supprimée", reservationId);
     }
 
     public void markReservationAsPaid(String reservationId) {

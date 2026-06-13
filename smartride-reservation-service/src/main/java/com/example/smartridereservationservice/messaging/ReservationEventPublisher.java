@@ -21,4 +21,24 @@ public class ReservationEventPublisher {
         log.info("[RabbitMQ →] ReservationConfirmedEvent publié (reservationId={}, montant={})",
                 event.getReservationId(), event.getMontant());
     }
+
+    public void publishCreated(ReservationCreatedEvent event) {
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE,
+                RabbitMQConfig.RK_RESERVATION_CREATED,
+                event
+        );
+        log.info("[RabbitMQ →] ReservationCreatedEvent publié (reservationId={}, trajetId={}, passagers={})",
+                event.getReservationId(), event.getTrajetId(), event.getNombrePassagers());
+    }
+
+    public void publishCancelled(ReservationCancelledEvent event) {
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE,
+                RabbitMQConfig.RK_RESERVATION_CANCELLED,
+                event
+        );
+        log.info("[RabbitMQ →] ReservationCancelledEvent publié (reservationId={}, trajetId={})",
+                event.getReservationId(), event.getTrajetId());
+    }
 }

@@ -28,7 +28,7 @@ public class DriverService {
 
 
 
-    public Trajet getrajetbyid(int id){
+    public Trajet getrajetbyid(Long id){
         return trajetServiceClient.getTrajetById(id);
     }
 

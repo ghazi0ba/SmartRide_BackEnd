@@ -20,6 +20,7 @@ public class RabbitMQConfig {
 
     public static final String EXCHANGE = "smartride.exchange";
     public static final String RK_TRAJET_STATUS = "trajet.status.changed";
+    public static final String RK_TRAJET_TERMINATED = "trajet.terminated";
 
     @Bean
     public TopicExchange smartrideExchange() {
