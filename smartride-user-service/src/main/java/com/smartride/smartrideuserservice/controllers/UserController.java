@@ -55,6 +55,20 @@ public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Map<String, Object>> getUserByEmail(@PathVariable String email) {
+        // Projection sans mot de passe : utilisée par le front pour résoudre l'id de l'utilisateur connecté.
+        return userService.getUserByEmail(email)
+                .map(u -> ResponseEntity.ok(Map.of(
+                        "id", (Object) u.getId(),
+                        "nom", u.getNom(),
+                        "prenom", u.getPrenom(),
+                        "email", u.getEmail(),
+                        "role", u.getRole().name()
+                )))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
         return ResponseEntity.ok(userService.updateUser(id, user));
