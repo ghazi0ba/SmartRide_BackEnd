@@ -28,6 +28,8 @@ public class ReservationResponseDTO {
 
     private ReservationStatus status;
 
+    private boolean paid;
+
     private LocalDateTime dateCreation;
 
     private LocalDateTime dateModification;

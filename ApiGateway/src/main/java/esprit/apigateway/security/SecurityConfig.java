@@ -57,7 +57,9 @@ public class SecurityConfig {
                 .pathMatchers("/payments/**").hasAnyRole("CLIENT", "ADMIN")
                 .pathMatchers("/api/reservations/**").hasAnyRole("CLIENT", "CHAUFFEUR", "ADMIN")
                 .pathMatchers("/api/ratings/**").hasAnyRole("CLIENT", "CHAUFFEUR", "ADMIN")
-                .pathMatchers("/smartride_trajet/api/trajets/**").hasAnyRole("CLIENT", "CHAUFFEUR", "ADMIN")
+                .pathMatchers("/api/trajets/**").hasAnyRole("CLIENT", "CHAUFFEUR", "ADMIN")
+                // Résolution de l'identité connectée (email -> id) : accessible à tout utilisateur authentifié.
+                .pathMatchers("/api/users/email/**").hasAnyRole("CLIENT", "CHAUFFEUR", "ADMIN")
                 .pathMatchers("/api/users/**").hasRole("ADMIN")
 
                 // ---- Tout le reste nécessite une authentification ----

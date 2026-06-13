@@ -415,6 +415,7 @@ public class ReservationService {
                 .nombrePassagers(reservation.getNombrePassagers())
                 .prixTotal(reservation.getPrixTotal())
                 .status(reservation.getStatus())
+                .paid(reservation.isPaid())
                 .dateCreation(reservation.getDateCreation())
                 .dateModification(reservation.getDateModification())
                 .delaiAnnulationLimite(reservation.getDelaiAnnulationLimite())
